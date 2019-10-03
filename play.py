@@ -2,20 +2,24 @@
 import random
 import math
 import collections
+import os
 from lib.spawn_probabilities import *
 
 pygame.font.init()
 
 empty_save = False
-block_size = 60
+block_size = 90
 wall_height = block_size // 3
 player_size = block_size // 2
 zone_size_in_blocks = 9
 zone_size = block_size * zone_size_in_blocks
 move_distance = 3
 diagonal_move_distance = move_distance * math.cos(math.radians(45))
-fnt = pygame.font.Font('./font.otf', 20)
-screen_size = block_size * 14
+fnt = pygame.font.Font('font.otf', 20)
+screen_width = block_size * 14
+screen_height = screen_width
+player_damage = 0.1
+show_tutorial = int(open("tutorial_setting","r").read())
 
 zones_with_modifications = {}
 
@@ -24,12 +28,12 @@ def get_image(path, dimensions):
     return pygame.transform.scale(pygame.image.load(path), dimensions)
 
 
-damage_levels = [get_image('/home/xander/Documents/openevening/minergame/graphics/break-1.png', (60, 60)),
-                 get_image('/home/xander/Documents/openevening/minergame/graphics/break-2.png', (60, 60)),
-                 get_image('/home/xander/Documents/openevening/minergame/graphics/break-3.png', (60, 60)),
-                 get_image('/home/xander/Documents/openevening/minergame/graphics/break-4.png', (60, 60)),
-                 get_image('/home/xander/Documents/openevening/minergame/graphics/break-5.png', (60, 60))
-                 ]
+damage_levels = [get_image(os.path.join('graphics', 'break-1.png'), (90, 90)),
+                 get_image(os.path.join('graphics', 'break-2.png'), (90, 90)),
+                 get_image(os.path.join('graphics', 'break-3.png'), (90, 90)),
+                 get_image(os.path.join('graphics', 'break-4.png'), (90, 90)),
+                 get_image(os.path.join('graphics', 'break-5.png'), (90, 90))
+]
 
 
 # player_movement = [get_image()]
@@ -101,7 +105,7 @@ class Zone:
                 if block == air_block:
                     pygame.draw.rect(screen, self.ground[pos].color, (base_x + x * block_size, base_y + y * block_size, block_size, block_size))
                 elif next_block == air_block:
-                    pygame.draw.rect(screen, block.side_color, (base_x + x * block_size, base_y + y * block_size + block_size - wall_height, block_size, 20))
+                    pygame.draw.rect(screen, block.side_color, (base_x + x * block_size, base_y + y * block_size + block_size - wall_height, block_size, 30))
                 pos += 1
 
     def draw_tops(self, base_x, base_y):
@@ -117,15 +121,16 @@ class Zone:
         for position, modification in self.modifications.items():
             x = position // zone_size_in_blocks
             y = position % zone_size_in_blocks
-            screen.blit(damage_levels[int((modification.damage / self.blocks[position].health) * len(damage_levels))], (base_x + x * block_size, base_y + y * block_size - wall_height))
+            damage_index = int((modification.damage / self.blocks[position].health) * len(damage_levels))
+            screen.blit(damage_levels[damage_index], (base_x + x * block_size, base_y + y * block_size - wall_height))
 
     def damage(self, pos):
         global zones_with_modifications
         modification = self.modifications.get(pos, None)
         if modification is not None:
-            modification.damage += 0.25
+            modification.damage += player_damage
             modification.last_damage_tick = ticks
-            if modification.damage == self.blocks[pos].health:
+            if modification.damage >= self.blocks[pos].health:
                 del self.modifications[pos]
                 if len(self.modifications) == 0:
                     del zones_with_modifications[self]
@@ -241,12 +246,12 @@ def save_game(zones, player_x, player_y):
         for item in inventory:
             q += ' %s:%s' % (block_types.index(item), inventory[item])
         w += '%s\n' % q
-        open('/home/xander/Documents/openevening/minergame/save-game.sav', 'w').write(w)
+        open('save-game.sav', 'w').write(w)
 
 
 def load_game():
     global gold
-    file = open('/home/xander/Documents/openevening/minergame/save-game.sav', 'r').read()
+    file = open('save-game.sav', 'r').read()
     plr = Character(((zone_size // 2) - .5 * player_size, (zone_size // 2) - .5 * player_size))
     if file != '':
         zns = {}
@@ -277,8 +282,24 @@ def load_game():
         zns = random_level()
     return zns, plr
 
+def draw_ui():
+    corner = 20
+    pygame.draw.rect(screen, (0, 0, 0), (corner + 0, corner + 0, 150, 150))
+    screen.blit(fnt.render("u " + str(gold), True, (255, 255, 0)), (5 + corner,corner + 5))
+    ui_y = 30
+    for block_type in block_types:
+        if block_type.value > 0:
+            pygame.draw.rect(screen, block_type.top_color, (10 + corner,corner + ui_y + 5, 10, 10))
+            screen.blit(fnt.render(str(inventory[block_type]), True, (255, 255, 0)), (corner + 30, corner + ui_y))
+            ui_y += 30
+    if show_tutorial:
+        y = 50
+        for line in ["CONTROLS","="*15,"W Move Up","A Move Left","S Move Down","D Move Right","SPACE Mine Block","ESC Exit Game"]:
+            screen.blit(fnt.render(line, True, (255, 255, 0)), ((screen_width / 100)*90,y))
+            y += 20
 
-def mainloop():
+
+def mainloop(framerate):
     global ticks
     zones, player = load_game()
     clock = pygame.time.Clock()
@@ -286,7 +307,9 @@ def mainloop():
     while not done:
         screen.fill((0, 0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                done = True
+            elif event.type == pygame.QUIT:
                 done = True
 
         keys = pygame.key.get_pressed()
@@ -330,10 +353,10 @@ def mainloop():
             if len(zone.modifications) == 0:
                 del zones_with_modifications[zone]
         # Calculate world offset
-        world_offset = ((screen_size - player_size) // 2 - player.x, (screen_size - player_size) // 2 - player.y)
+        world_offset = ((screen_width - player_size) // 2 - player.x, (screen_height - player_size) // 2 - player.y)
         # Work out which zones to render
         z_min = (math.floor(-world_offset[0] / zone_size), math.floor(-world_offset[1] / zone_size))
-        z_max = (math.floor((-world_offset[0] + screen_size + wall_height) / zone_size), math.floor((-world_offset[1] + screen_size + wall_height) / zone_size))
+        z_max = (math.floor((-world_offset[0] + screen_width) / zone_size), math.floor((-world_offset[1] + screen_height + wall_height) / zone_size))
         # Draw world
         for zx in range(z_min[0], z_max[0] + 1):
             for zy in range(z_min[1], z_max[1] + 1):
@@ -350,23 +373,18 @@ def mainloop():
                 zone.draw_damage(world_offset[0] + (zx * zone_size), world_offset[1] + (zy * zone_size))
         # Draw UI
         # screen.blit(fnt.render(str(int(clock.get_fps())), False, (255, 255, 255)), (0, 0))
-        pygame.draw.rect(screen, (0, 0, 0), (0, 0, 150, 150))
-        screen.blit(fnt.render("u " + str(gold), True, (255, 255, 0)), (0, 0))
-        ui_y = 30
-        for block_type in block_types:
-            if block_type.value > 0:
-                pygame.draw.rect(screen, block_type.top_color, (10, ui_y + 5, 10, 10))
-                screen.blit(fnt.render(str(inventory[block_type]), True, (255, 255, 0)), (30, ui_y))
-                ui_y += 30
+        draw_ui()
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(framerate)
         ticks += 1
     save_game(zones, player.x, player.y)
 
 
 pygame.init()
 pygame.font.init()
-screen = pygame.display.set_mode((screen_size, screen_size))
+pygame.mouse.set_visible(False)
+screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+screen_width, screen_height = pygame.display.get_surface().get_size()
 pygame.display.set_caption('Mining Game')
-pygame.display.set_icon(pygame.image.load('./icon.png'))
-mainloop()
+pygame.display.set_icon(pygame.image.load('icon.png'))
+mainloop(60)
