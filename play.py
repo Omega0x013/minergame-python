@@ -20,6 +20,7 @@ screen_width = block_size * 14
 screen_height = screen_width
 player_damage = 0.1
 show_tutorial = int(open("tutorial_setting","r").read())
+resourcepack = open(os.path.join("resourcepacks","resourcepack.txt"),"r").read()
 
 zones_with_modifications = {}
 
@@ -28,11 +29,11 @@ def get_image(path, dimensions):
     return pygame.transform.scale(pygame.image.load(path), dimensions)
 
 
-damage_levels = [get_image(os.path.join('graphics', 'break-1.png'), (90, 90)),
-                 get_image(os.path.join('graphics', 'break-2.png'), (90, 90)),
-                 get_image(os.path.join('graphics', 'break-3.png'), (90, 90)),
-                 get_image(os.path.join('graphics', 'break-4.png'), (90, 90)),
-                 get_image(os.path.join('graphics', 'break-5.png'), (90, 90))
+damage_levels = [get_image(os.path.join('resourcepacks', resourcepack, 'break-1.png'), (90, 90)),
+                 get_image(os.path.join('resourcepacks', resourcepack, 'break-2.png'), (90, 90)),
+                 get_image(os.path.join('resourcepacks', resourcepack, 'break-3.png'), (90, 90)),
+                 get_image(os.path.join('resourcepacks', resourcepack, 'break-4.png'), (90, 90)),
+                 get_image(os.path.join('resourcepacks', resourcepack, 'break-5.png'), (90, 90))
 ]
 
 
