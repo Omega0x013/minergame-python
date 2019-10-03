@@ -23,3 +23,6 @@ I may not have a chance to review pull/merge requests for a while as I am a full
 
 ## Font
 The font was originally created by Chequered Ink, and was then obtained using Google Fonts for free use.
+
+## Screen Tearing
+On my Ubuntu system the game experienced screen tearing during normal gameplay. This problem did not occur on a windows environment, so I can only assume that a different software was used for backend, and that one uses V-Sync while the other does not.
