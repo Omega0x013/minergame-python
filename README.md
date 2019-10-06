@@ -1,7 +1,8 @@
 # MinerGame
 This is game is exactly what it sounds like, a game in which you mine. Nothing currently happens yet, this is very much a WIP but is functional
 
-<iframe frameborder="0" src="https://itch.io/embed/432518" width="552" height="167"></iframe>
+## Download from Itch instead
+https://omega0x013.itch.io/minergame
 
 ## Compatibility
 As far as it is known, with python 3.7.2 and pygame 1.9.6 this game runs with no issues on all operating systems
