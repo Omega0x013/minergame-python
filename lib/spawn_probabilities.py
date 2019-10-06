@@ -3,6 +3,7 @@ class BlockType:
         self.top_color = top_color
         self.side_color = side_color
         self.health = health / 10
+        self.max_health = health / 10
         self.value = value
 class GroundType:
     def __init__(self, color):

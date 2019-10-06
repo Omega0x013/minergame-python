@@ -20,21 +20,8 @@ screen_width = block_size * 14
 screen_height = screen_width
 player_damage = 0.1
 show_tutorial = int(open("tutorial_setting","r").read())
-resourcepack = open(os.path.join("resourcepacks","resourcepack.txt"),"r").read()
 
 zones_with_modifications = {}
-
-
-def get_image(path, dimensions):
-    return pygame.transform.scale(pygame.image.load(path), dimensions)
-
-
-damage_levels = [get_image(os.path.join('resourcepacks', resourcepack, 'break-1.png'), (90, 90)),
-                 get_image(os.path.join('resourcepacks', resourcepack, 'break-2.png'), (90, 90)),
-                 get_image(os.path.join('resourcepacks', resourcepack, 'break-3.png'), (90, 90)),
-                 get_image(os.path.join('resourcepacks', resourcepack, 'break-4.png'), (90, 90)),
-                 get_image(os.path.join('resourcepacks', resourcepack, 'break-5.png'), (90, 90))
-]
 
 
 # player_movement = [get_image()]
@@ -122,8 +109,9 @@ class Zone:
         for position, modification in self.modifications.items():
             x = position // zone_size_in_blocks
             y = position % zone_size_in_blocks
-            damage_index = int((modification.damage / self.blocks[position].health) * len(damage_levels))
-            screen.blit(damage_levels[damage_index], (base_x + x * block_size, base_y + y * block_size - wall_height))
+            damage_size = int((-(modification.damage - self.blocks[position].max_health) / self.blocks[position].health) * (block_size*0.75))
+            #screen.blit(damage_levels[damage_index], (base_x + x * block_size, base_y + y * block_size - wall_height))
+            pygame.draw.rect(screen,(0,255,0),pygame.Rect(base_x + x * block_size + block_size*0.125, base_y + y * block_size - wall_height + block_size*0.8, damage_size, block_size*0.1))
 
     def damage(self, pos):
         global zones_with_modifications
