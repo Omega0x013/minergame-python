@@ -1,21 +1,23 @@
 class BlockType:
-    def __init__(self, top_color, side_color, health, value):
+    def __init__(self, name, top_color, side_color, health, value):
         self.top_color = top_color
         self.side_color = side_color
         self.health = health / 10
         self.max_health = health / 10
         self.value = value
+        self.name = name
 class GroundType:
     def __init__(self, color):
         self.color = color
-stone_block = BlockType((0x80, 0x80, 0x80), (0x40, 0x40, 0x40), health=30, value=0)
-emerald_block = BlockType((54, 206, 68), (54 / 2, 206 / 2, 68 / 2), health=90, value=50)
-sapphire_block = BlockType((0, 0, 200), (0, 0, 100), health=60, value=30)
-ruby_block = BlockType((200, 0, 0), (100, 0, 0), health=50, value=20)
-coal_block = BlockType((40, 40, 40), (20, 20, 20), health=40, value=10)
-air_block = BlockType((0, 0, 0, 0), (0, 0, 0, 0), health=0, value=0)
-shopkeeper_block = BlockType((101, 28, 130), (53, 14, 68), health=0, value=0)
+stone_block = BlockType("st", (0x80, 0x80, 0x80), (0x40, 0x40, 0x40), health=30, value=0)
+emerald_block = BlockType("em", (54, 206, 68), (54 / 2, 206 / 2, 68 / 2), health=90, value=50)
+sapphire_block = BlockType("sp", (0, 0, 200), (0, 0, 100), health=60, value=30)
+ruby_block = BlockType("rb", (200, 0, 0), (100, 0, 0), health=50, value=20)
+coal_block = BlockType("co", (40, 40, 40), (20, 20, 20), health=40, value=10)
+air_block = BlockType("ar", (0, 0, 0, 0), (0, 0, 0, 0), health=0, value=0)
+shopkeeper_block = BlockType("sh", (101, 28, 130), (53, 14, 68), health=0, value=0)
 block_types = [stone_block, air_block, emerald_block, sapphire_block, ruby_block, coal_block, shopkeeper_block]
+check_types = ["st","ar","em","sp","rb","co","sh"]
 dirt_ground = GroundType((0x95, 0x4B, 0x33))
 stone_ground = GroundType((77, 77, 77))
 spawn_ground = GroundType((128, 204, 255))

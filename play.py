@@ -1,8 +1,4 @@
-﻿import pygame
-import random
-import math
-import collections
-import os
+﻿import pygame, random, math, collections, os
 from lib.spawn_probabilities import *
 
 pygame.font.init()
@@ -23,6 +19,31 @@ show_tutorial = int(open("tutorial_setting","r").read())
 
 zones_with_modifications = {}
 
+def grpath(targ):
+    return os.path.join("graphics",targ)
+
+def get_image(path, dimensions):
+    return pygame.transform.scale(pygame.image.load(path), dimensions)
+
+
+block_tops = [
+    "default",
+    "default",
+    get_image(grpath("Emerald.png"), (90,90)),
+    get_image(grpath("Sapphire.png"), (90,90)),
+    get_image(grpath("Ruby.png"), (90,90)),
+    get_image(grpath("Coal.png"), (90,90)),
+    "default",
+]
+block_sides = [
+    "default",
+    "default",
+    get_image(grpath("Emerald_squish.png"),(90,30)),
+    get_image(grpath("Sapphire_squish.png"), (90,30)),
+    get_image(grpath("Ruby_squish.png"), (90,30)),
+    get_image(grpath("Coal_squish.png"), (90,30)),    
+    "default",
+]
 
 # player_movement = [get_image()]
 
@@ -90,10 +111,15 @@ class Zone:
                         next_block = air_block
                     else:
                         next_block = next_zone.blocks[pos - 8]
+                
                 if block == air_block:
                     pygame.draw.rect(screen, self.ground[pos].color, (base_x + x * block_size, base_y + y * block_size, block_size, block_size))
                 elif next_block == air_block:
-                    pygame.draw.rect(screen, block.side_color, (base_x + x * block_size, base_y + y * block_size + block_size - wall_height, block_size, 30))
+                    if block_sides[check_types.index(block.name)] != "default":
+                        screen.blit(block_sides[check_types.index(block.name)],(base_x + x * block_size, base_y + y * block_size + block_size - wall_height))
+                    else:
+                        pygame.draw.rect(screen, block.side_color, (base_x + x * block_size, base_y + y * block_size + block_size - wall_height, block_size, 30))
+
                 pos += 1
 
     def draw_tops(self, base_x, base_y):
@@ -103,7 +129,11 @@ class Zone:
                 block = self.blocks[pos]
                 pos += 1
                 if block != air_block:
-                    pygame.draw.rect(screen, block.top_color, (base_x + x * block_size, base_y + y * block_size - wall_height, block_size, block_size))
+                    if block_sides[check_types.index(block.name)] != "default":
+                        screen.blit(block_tops[check_types.index(block.name)],(base_x + x * block_size, base_y + y * block_size - wall_height))
+                    else:
+                        pygame.draw.rect(screen, block.top_color, (base_x + x * block_size, base_y + y * block_size - wall_height, block_size, block_size))
+                    #pygame.draw.rect(screen, block.top_color, (base_x + x * block_size, base_y + y * block_size - wall_height, block_size, block_size))
 
     def draw_damage(self, base_x, base_y):  # world_offset[0] + (zx * zone_size), world_offset[1] + (zy * zone_size)
         for position, modification in self.modifications.items():
