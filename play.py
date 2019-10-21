@@ -9,8 +9,8 @@ wall_height = block_size // 3
 player_size = block_size // 2
 zone_size_in_blocks = 9
 zone_size = block_size * zone_size_in_blocks
-move_distance = 3
-diagonal_move_distance = move_distance * math.cos(math.radians(45))
+move_distance = 4
+move_distance_sprint = 8
 fnt = pygame.font.Font('font.otf', 20)
 screen_width = block_size * 14
 screen_height = screen_width
@@ -56,6 +56,13 @@ ticks = 0
 gold = 0
 inventory = collections.Counter()
 
+control_move_up = pygame.K_w
+control_move_left = pygame.K_a
+control_move_down = pygame.K_s
+control_move_right = pygame.K_d
+control_sprint = pygame.K_LCTRL
+control_mine = pygame.K_SPACE
+control_quit = pygame.K_ESCAPE
 
 class Modification:
     def __init__(self):
@@ -306,7 +313,7 @@ def load_game():
 def draw_ui():
     corner = 20
     pygame.draw.rect(screen, (0, 0, 0), (corner + 0, corner + 0, 150, 150))
-    screen.blit(fnt.render("u " + str(gold), True, (255, 255, 0)), (5 + corner,corner + 5))
+    screen.blit(fnt.render("Gold: " + str(gold), True, (255, 255, 0)), (5 + corner,corner + 5))
     ui_y = 30
     for block_type in block_types:
         if block_type.value > 0:
@@ -314,8 +321,19 @@ def draw_ui():
             screen.blit(fnt.render(str(inventory[block_type]), True, (255, 255, 0)), (corner + 30, corner + ui_y))
             ui_y += 30
     if show_tutorial:
+        tutorial_lines = [
+            "CONTROLS",
+            "="*15,
+            pygame.key.name(control_move_up) + ": Move Up",
+            pygame.key.name(control_move_left) + ": Move Left",
+            pygame.key.name(control_move_down) + ": Move Down",
+            pygame.key.name(control_move_right) + ": Move Right",
+            pygame.key.name(control_sprint) + ": Sprint",
+            pygame.key.name(control_mine) + ": Mine Block",
+            pygame.key.name(control_quit) + ": Exit Game"
+        ]
         y = 50
-        for line in ["CONTROLS","="*15,"W Move Up","A Move Left","S Move Down","D Move Right","SPACE Mine Block","ESC Exit Game"]:
+        for line in tutorial_lines:
             screen.blit(fnt.render(line, True, (255, 255, 0)), ((screen_width / 100)*90,y))
             y += 20
 
@@ -328,42 +346,70 @@ def mainloop(framerate):
     while not done:
         screen.fill((0, 0, 0))
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == control_quit:
                 done = True
             elif event.type == pygame.QUIT:
                 done = True
 
         keys = pygame.key.get_pressed()
         # Work out which way the player wants to move based on the keys being held
+
         x_dir = 0
         y_dir = 0
-        if keys[pygame.K_s]:
+        if keys[control_move_down]:
             player.facing = down
             y_dir += 1
-        if keys[pygame.K_w]:
+        if keys[control_move_up]:
             player.facing = up
             y_dir -= 1
-        if keys[pygame.K_d]:
+        if keys[control_move_right]:
             player.facing = right
             x_dir += 1
-        if keys[pygame.K_a]:
+        if keys[control_move_left]:
             player.facing = left
             x_dir -= 1
-        if keys[pygame.K_SPACE]:
+        if keys[control_mine]:
             try_mine(zones, player)
         if x_dir != 0 or y_dir != 0:
             # Try mining the block being looked at
             # Work out how far the player can move in x and y
             active_move_distance = move_distance
+            if keys[control_sprint]:
+                active_move_distance = move_distance_sprint
             if x_dir != 0 and y_dir != 0:
-                active_move_distance = diagonal_move_distance
+                active_move_distance *= math.cos(math.radians(45))
             x_move = x_dir * active_move_distance
             y_move = y_dir * active_move_distance
             # Try and move the player
-            if test_move(zones, player.x + x_move, player.y):
+            moved_player = False
+            if test_move(zones, player.x + x_move, player.y + y_move):
                 player.x += x_move
-            if test_move(zones, player.x, player.y + y_move):
                 player.y += y_move
+                moved_player = True
+            if not moved_player:
+                # Test along Y-Axis
+                i = y_move
+                while math.trunc(i) != 0:
+                    if test_move(zones, player.x, player.y + i):
+                        player.y += i
+                        moved_player = True
+                        break
+                    if i < 0:
+                        i += 1
+                    else:
+                        i -= 1
+            if not moved_player:
+                # Text along X-Axis
+                i = x_move
+                while math.trunc(i) != 0:
+                    if test_move(zones, player.x + i, player.y):
+                        player.x += i
+                        moved_player = True
+                        break
+                    if i < 0:
+                        i += 1
+                    else:
+                        i -= 1
         # Heal damage
         for zone in list(zones_with_modifications.keys()):
             for pos, modification in list(zone.modifications.items()):

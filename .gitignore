@@ -1,2 +1,3 @@
 *.sav
 .vscode
+lib/__pycache__/spawn_probabilities.cpython-36.pyc
