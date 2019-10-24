@@ -271,6 +271,8 @@ def save_game(zones, player_x, player_y):
 
 def load_game():
     global gold
+    if not os.path.exists(os.path.join('save','slot-1.sav')):
+        open(os.path.join('save','slot-1.sav','w')).close()
     file = open(os.path.join('save','slot-1.sav'), 'r').read()
     plr = Character(((zone_size // 2) - .5 * player_size, (zone_size // 2) - .5 * player_size))
     if file != '':
