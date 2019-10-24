@@ -34,7 +34,7 @@ block_tops = [
     get_image(get_asset("g", "Sapphire.png"), (90,90)),
     get_image(get_asset("g", "Ruby.png"), (90,90)),
     get_image(get_asset("g", "Coal.png"), (90,90)),
-    "default",
+    get_image(get_asset("g", "Shopkeeper.png"), (90,90)),
 ]
 block_sides = [
     "default",
@@ -43,7 +43,7 @@ block_sides = [
     get_image(get_asset("g", "Sapphire_squish.png"), (90,30)),
     get_image(get_asset("g", "Ruby_squish.png"), (90,30)),
     get_image(get_asset("g", "Coal_squish.png"), (90,30)),    
-    "default",
+    get_image(get_asset("g", "Shopkeeper_squish.png"), (90,30)),
 ]
 
 # player_movement = [get_image()]

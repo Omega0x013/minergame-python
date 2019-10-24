@@ -1,3 +1,4 @@
 *.sav
 .vscode
 __pycache__
+*~
