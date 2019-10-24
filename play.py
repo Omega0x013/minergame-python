@@ -1,4 +1,4 @@
-﻿import pygame, random, math, collections, os
+﻿import pygame, random, math, collections, os, settings
 from lib.spawn_probabilities import *
 
 pygame.font.init()
@@ -11,37 +11,38 @@ zone_size_in_blocks = 9
 zone_size = block_size * zone_size_in_blocks
 move_distance = 3
 diagonal_move_distance = move_distance * math.cos(math.radians(45))
-fnt = pygame.font.Font('font.otf', 20)
 screen_width = block_size * 14
 screen_height = screen_width
 player_damage = 0.1
-show_tutorial = int(open("tutorial_setting","r").read())
 
 zones_with_modifications = {}
 
-def grpath(targ):
-    return os.path.join("graphics",targ)
+def get_asset(dest:str, targ:str):
+    if dest == "g":
+        return os.path.join("assets","graphics",targ)
+    elif dest == "f":
+        return os.path.join("assets","fonts",targ)
 
-def get_image(path, dimensions):
+def get_image(path:str, dimensions:tuple):
     return pygame.transform.scale(pygame.image.load(path), dimensions)
 
-
+fnt = pygame.font.Font(get_asset('f','font.otf'), 20)
 block_tops = [
     "default",
     "default",
-    get_image(grpath("Emerald.png"), (90,90)),
-    get_image(grpath("Sapphire.png"), (90,90)),
-    get_image(grpath("Ruby.png"), (90,90)),
-    get_image(grpath("Coal.png"), (90,90)),
+    get_image(get_asset("g", "Emerald.png"), (90,90)),
+    get_image(get_asset("g", "Sapphire.png"), (90,90)),
+    get_image(get_asset("g", "Ruby.png"), (90,90)),
+    get_image(get_asset("g", "Coal.png"), (90,90)),
     "default",
 ]
 block_sides = [
     "default",
     "default",
-    get_image(grpath("Emerald_squish.png"),(90,30)),
-    get_image(grpath("Sapphire_squish.png"), (90,30)),
-    get_image(grpath("Ruby_squish.png"), (90,30)),
-    get_image(grpath("Coal_squish.png"), (90,30)),    
+    get_image(get_asset("g", "Emerald_squish.png"),(90,30)),
+    get_image(get_asset("g", "Sapphire_squish.png"), (90,30)),
+    get_image(get_asset("g", "Ruby_squish.png"), (90,30)),
+    get_image(get_asset("g", "Coal_squish.png"), (90,30)),    
     "default",
 ]
 
@@ -265,12 +266,12 @@ def save_game(zones, player_x, player_y):
         for item in inventory:
             q += ' %s:%s' % (block_types.index(item), inventory[item])
         w += '%s\n' % q
-        open('save-game.sav', 'w').write(w)
+        open(os.path.join('save','slot-1.sav'), 'w').write(w)
 
 
 def load_game():
     global gold
-    file = open('save-game.sav', 'r').read()
+    file = open(os.path.join('save','slot-1.sav'), 'r').read()
     plr = Character(((zone_size // 2) - .5 * player_size, (zone_size // 2) - .5 * player_size))
     if file != '':
         zns = {}
@@ -311,7 +312,7 @@ def draw_ui():
             pygame.draw.rect(screen, block_type.top_color, (10 + corner,corner + ui_y + 5, 10, 10))
             screen.blit(fnt.render(str(inventory[block_type]), True, (255, 255, 0)), (corner + 30, corner + ui_y))
             ui_y += 30
-    if show_tutorial:
+    if settings.tutorial:
         y = 50
         for line in ["CONTROLS","="*15,"W Move Up","A Move Left","S Move Down","D Move Right","SPACE Mine Block","ESC Exit Game"]:
             screen.blit(fnt.render(line, True, (255, 255, 0)), ((screen_width / 100)*90,y))
