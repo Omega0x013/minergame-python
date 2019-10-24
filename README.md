@@ -12,15 +12,13 @@ If you have any name suggestions then DM me on https://reddit.com/u/Omega0x013
 As far as it is known, with python 3.7.2 and pygame 1.9.6 this game runs with no issues on all operating systems
 
 ### Controls
-Open the file `tutorial_setting` once you have cloned the repo and replace the 0 with a 1, controls will then appear in the top right corner of the screen. Change it to 0 again when you wish to turn it off
-
-The only thing I will write here is that `ESC` quits the game
+Use WASD to move the player, Ctrl to sprint, Space to mine and Escape to quit. Set tutorial\_setting to 1 to see controls in-game.
 
 ### Menu
-There is currently no in-game menu, everything is currently controlled through different configuration files, such as `tutorial_setting`
+There is currently no in-game menu, everything is currently controlled through different configuration files, such as `tutorial_setting`.
 
 ### Resetting Save
-To reset your savegame all you have to do is open `save-game.sav` delete its contents
+To reset your savegame all you have to do is open `save-game.sav` delete its contents.
 
 ## Other
 ### Pull & Merge Requests
