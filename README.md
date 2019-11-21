@@ -1,8 +1,7 @@
 # MinerGame
 This is game is exactly what it sounds like, a game in which you mine. Nothing currently happens yet, this is very much a WIP but is functional
 
-## Download from Itch instead
-https://omega0x013.itch.io/minergame
+# This is no longer updated
 
 ## Name suggestions
 If you have any name suggestions then DM me on https://reddit.com/u/Omega0x013 or raise a feature issue
