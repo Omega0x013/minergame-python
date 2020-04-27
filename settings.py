@@ -1,1 +1,1 @@
-tutorial = False
+tutorial = True
